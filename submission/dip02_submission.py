@@ -12,37 +12,37 @@
 import numpy as np
 import imageio
 
-# Erro quadratico
 def root_square_error(input_img, output_img):
+    """Calculates and returns the Root Squared Error between two images."""
     rse = np.sqrt(np.sum(np.power(output_img - input_img, 2)))
 
     return rse
 
-# Gaussiana
 def gaussian(x, sigma):
+    """Gaussian"""
     return np.exp((-x**2)/(2*sigma**2))/(2*np.pi*sigma**2)
 
-# Padding de n linhas e colunas com 0
 def padding(img, n):
+    """Zero-padding of n rows and n cols"""
     img = np.pad(img, [(n, n), (n, n)], mode='constant', constant_values=0)
 
     return img
 
-# Unpadding de n linhas e colunas
 def unpadding(img, n):
+    """Unpadding of n rows and n cols"""
     img = img[n:img.shape[0]-n, n:img.shape[1]-n]
 
     return img
 
-# Normaliza a imagem entre 0 e 255
 def normalization(img):
+    """Normalizes image to values between 0 and 255"""
     max_val = img.max()
     min_val = img.min()
 
     return ((img-min_val)*255)/max_val
 
-# Controi o filtro spatial gaussian
 def build_filter(n, sigma):
+    """Builds the spatial gaussian filter"""
     filter_ = np.zeros((n,n))
 
     begin = n//2
@@ -54,9 +54,8 @@ def build_filter(n, sigma):
 
     return filter_
 
-
-# Aplica o filtro bilateral usando gaussianas
 def bilateral_filter(img, n, sigma_s, sigma_r):
+    """Applies bilateral filter using gaussians"""
     filter_ = build_filter(n, sigma_s)
     
     original_shape = list(img.shape)
@@ -68,9 +67,9 @@ def bilateral_filter(img, n, sigma_s, sigma_r):
 
     for i in range(pad, original_shape[0]+pad):
         for j in range(pad, original_shape[1]+pad):
-            # As operacoes aqui acontecem de forma vetorial em torno de img[i][j] (E um pouco chato acompanhar os indices)
+            # Operations happen vectorially around img[i][j]
             
-            # Grid centrada em img[i][j]
+            # Grid centered in img[i][j]
             sub_matrix = img[i-pad:i+pad+1, j-pad:j+pad+1]
 
             gr = gaussian(sub_matrix-img[i][j], sigma_r)
@@ -87,13 +86,12 @@ def bilateral_filter(img, n, sigma_s, sigma_r):
     
     return new_img
 
-# Aplica o filtro de laplace
 def laplacian_filter(img, c, kernel_val):
+    """Applies thelapacian filter"""
     if kernel_val == 1:
         kernel = np.array([[0, -1, 0], [-1, 4, -1], [0, -1, 0]])
     elif kernel_val == 2:
         kernel = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
-
 
     original_shape = list(img.shape)
 
@@ -116,8 +114,8 @@ def laplacian_filter(img, c, kernel_val):
 
     return img
 
-# Constroi o vetor gaussian kernel
 def gaussian_kernel(dim, sigma):
+    """Builds gaussian kernel vector"""
     kernel = np.zeros(dim)
 
     if dim%2 == 0:
@@ -130,13 +128,12 @@ def gaussian_kernel(dim, sigma):
 
     return kernel
 
-# Aplica o filtro vignette
 def vignette_filter(img, sigma_row, sigma_col):
+    """Applies vignette filter"""
     dim = list(img.shape)
     
     w_row = gaussian_kernel(dim[0], sigma_row)
     w_row = w_row.reshape((-1, 1))
-
 
     w_col = gaussian_kernel(dim[1], sigma_col)
 
@@ -147,40 +144,40 @@ def vignette_filter(img, sigma_row, sigma_col):
 
     return img
 
-filename = str(input()).rstrip()
-input_img = imageio.imread(filename)
-method = int(input())
-save = int(input())
+def main():
+    filename = str(input()).rstrip()
+    input_img = imageio.imread(filename)
+    method = int(input())
+    save = int(input())
 
-# Converte a imagem de inteiro para float
-input_img = np.asarray(input_img, dtype=float)
+    # Converts image to float
+    input_img = np.asarray(input_img, dtype=float)
 
-if method == 1:
-    n = int(input())
-    sigma_s = float(input())
-    sigma_r = float(input())
+    if method == 1:
+        n = int(input())
+        sigma_s = float(input())
+        sigma_r = float(input())
 
-    output_img = bilateral_filter(input_img, n, sigma_s, sigma_r)
-    
-elif method == 2:
-    c = float(input())
-    kernel = int(input())
+        output_img = bilateral_filter(input_img, n, sigma_s, sigma_r)
+    elif method == 2:
+        c = float(input())
+        kernel = int(input())
 
-    output_img = laplacian_filter(input_img, c, kernel)
+        output_img = laplacian_filter(input_img, c, kernel)
+    elif method == 3:
+        sigma_row = float(input())
+        sigma_col = float(input())
 
-elif method == 3:
-    sigma_row = float(input())
-    sigma_col = float(input())
+        output_img = vignette_filter(input_img, sigma_row, sigma_col)
+    else:
+        print("Invalid Method")
+        exit()
 
-    output_img = vignette_filter(input_img, sigma_row, sigma_col)
+    print("{:.4f}".format(root_square_error(input_img, output_img)))
 
-else:
-    print("Invalid Method")
-    exit()
+    if save == 1:
+        output_img = np.asarray(output_img, dtype="uint8")
+        imageio.imwrite("output_img.png", output_img)
 
-# Imprime o erro quadratico
-print("{:.4f}".format(root_square_error(input_img, output_img)))
-
-if save == 1:
-    output_img = np.asarray(output_img, dtype="uint8")
-    imageio.imwrite("output_img.png", output_img)
+if __name__ == "__main__":
+    main()
