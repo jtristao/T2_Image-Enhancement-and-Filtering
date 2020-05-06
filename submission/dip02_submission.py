@@ -7,6 +7,8 @@
 #                                                                              #
 #                       Gabriel Kanegae Souza - 10262648                       #
 #                   João Vitor dos Santos Tristão - 10262652                   #
+#                                                                              #
+#        https://github.com/jtristao/T2_Image-Enhancement-and-Filtering        #
 ################################################################################
 
 import numpy as np
@@ -39,7 +41,7 @@ def normalization(img):
     max_val = img.max()
     min_val = img.min()
 
-    return ((img-min_val)*255)/max_val
+    return ((img-min_val)*255)/(max_val-min_val)
 
 def build_filter(n, sigma):
     """Builds the spatial gaussian filter"""
