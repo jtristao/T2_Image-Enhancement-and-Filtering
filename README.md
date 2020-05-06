@@ -9,4 +9,4 @@ Authors:
 Folders and Files:
 * [Python code](submission/dip02_submission.py) contains the Python code used for run.codes submission
 * [Images](images/) contains images used in the demos
-* [Notebook with Demo](dip02_notebook.ipynb) is a notebook exemplifying functions developed and submitte
+* [Notebook with Demo](dip02_notebook.ipynb) is a notebook exemplifying functions developed and submitted
